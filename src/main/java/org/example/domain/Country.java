@@ -23,7 +23,10 @@ public class Country {
     @Column(name = "currency")
     private String currency;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "country")
+    @OneToMany(mappedBy = "country",
+            fetch = FetchType.EAGER,
+            orphanRemoval = true
+    )
     private List<User> users;
 
     public Country() {
@@ -80,6 +83,19 @@ public class Country {
     public Country currency(String currency) {
         this.currency = currency;
         return this;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public Country users(List<User> users) {
+        this.users = users;
+        return this;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     @Override
