@@ -84,8 +84,8 @@ public class UserCrudRepository implements CrudRepository<User, Integer>{
     public boolean updateId(Integer id, User user) {
         Transaction transaction = null;
         final String UPDATE_USER_BY_ID = "update User user " +
-                "set user.firstName = :firstName, user.email = :email, " +
-                "user.password = :password, user.role = :role, user.country = :country " +
+                "set user.firstName = :firstName, user.email = :email, user.password = :password, " +
+                "user.role = :role, user.country = :country, user.passport = :passport " +
                 "where user.id = :id";
         try (Session session = dataSource.openSession()){
             transaction = session.beginTransaction();
@@ -95,6 +95,7 @@ public class UserCrudRepository implements CrudRepository<User, Integer>{
             query.setParameter("password", user.getPassword());
             query.setParameter("role", user.getRole());
             query.setParameter("country", user.getCountry());
+            query.setParameter("passport", user.getPassport());
             query.setParameter("id", user.getId());
             query.executeUpdate();
             transaction.commit();
