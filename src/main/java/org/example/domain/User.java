@@ -1,8 +1,6 @@
 package org.example.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,10 +31,22 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleName role;
 
-    @ManyToOne(fetch = FetchType.LAZY/*,cascade = CascadeType.REFRESH*/)
+    @ManyToOne(cascade = CascadeType.ALL/*{CascadeType.REMOVE, CascadeType.PERSIST}*/ )
     @JoinColumn(name="country_id")
     private Country country;
 
+    @OneToOne(cascade = CascadeType.ALL/*cascade = {CascadeType.REMOVE, CascadeType.PERSIST}*/,
+            orphanRemoval = true)
+    @JoinColumn(name="passport_id", unique = true)
+    private Passport passport;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "users_projects",
+            joinColumns = @JoinColumn(name = "user_id"),       // Зовнішній ключ на таблицю User
+            inverseJoinColumns = @JoinColumn(name = "project_id")  // Зовнішній ключ на таблицю Project
+    )
+    private List<Project> projects;
 
     public Country getCountry() {
         return country;
@@ -113,6 +123,32 @@ public class User {
     }
 
 
+    public Passport getPassport() {
+        return passport;
+    }
+
+    public User passport(Passport passport){
+        this.passport = passport;
+        return this;
+    }
+
+    public void setPassport(Passport passport) {
+        this.passport = passport;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public User project(List<Project> projects){
+        this.projects = projects;
+        return this;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
 
     @Override
     public String toString() {
@@ -122,6 +158,8 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", role=" + role +
+                ", country=" + country +
+                ", passport=" + passport +
                 '}';
     }
 
@@ -130,11 +168,17 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(firstName, user.firstName) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(role, user.role);
+        return Objects.equals(id, user.id) &&
+                Objects.equals(firstName, user.firstName) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(password, user.password) &&
+                role == user.role &&
+                Objects.equals(country, user.country) &&
+                Objects.equals(passport, user.passport);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, email, password, role);
+        return Objects.hash(id, firstName, email, password, role, country, passport);
     }
 }
